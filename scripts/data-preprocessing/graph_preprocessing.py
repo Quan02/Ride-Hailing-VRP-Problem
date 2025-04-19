@@ -9,10 +9,11 @@ It performs the following tasks:
 More preprocessing steps may be added as needed.
 """
 
-import networkx as nx
-from shapely.geometry import LineString
 import logging
 from pathlib import Path
+
+import networkx as nx
+from shapely.geometry import LineString
 
 from graph_utils import load_graph_from_file, save_graph
 

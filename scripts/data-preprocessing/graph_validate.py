@@ -8,9 +8,10 @@ It performs the following tasks:
 More preprocessing steps may be added as needed.
 """
 
-import networkx as nx
 import logging
 from pathlib import Path
+
+import networkx as nx
 
 from graph_utils import load_graph_from_file
 
@@ -25,7 +26,7 @@ def validate_connectivity(graph: nx.MultiDiGraph) -> None:
         graph (nx.MultiDiGraph): Road Network Graph to be validated.
     """
     if not nx.is_weakly_connected(graph):
-        logging.warning("Graph is not fully connected. Consider extract the largest connected component.")
+        logging.warning("Graph is not fully connected.")
         return
     logging.info("Graph is connected.")
 
@@ -37,18 +38,18 @@ def validate_geometry(graph: nx.MultiDiGraph) -> None:
         graph (nx.MultiDiGraph): Road Network Graph to be validated.
     """
     missing: int = 0
-    for u, v, data in graph.edges(data=True):
+    for _, _, data in graph.edges(data=True):
         if "geometry" not in data or data["geometry"] is None:
             missing += 1
     if missing:
-        logging.warning(f"Found {missing} edges with missing geometry.")
+        logging.warning("Found %s edges with missing geometry.", missing)
         return
     logging.info("All edges have geometry.")
 
 if __name__=="__main__":
-    graph = load_graph_from_file(GRAPH_FILE)
+    road_graph = load_graph_from_file(GRAPH_FILE)
 
-    logging.info(f"Start validating graph from {GRAPH_FILE}.")
-    validate_connectivity(graph)
-    validate_geometry(graph)
-    logging.info(f"Finished validate road network graph.")
+    logging.info("Start validating graph from %s.", GRAPH_FILE)
+    validate_connectivity(road_graph)
+    validate_geometry(road_graph)
+    logging.info("Finished validate road network graph.")

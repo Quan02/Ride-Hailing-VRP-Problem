@@ -1,9 +1,10 @@
 """This module extract OpenStreetMap Data and download specific region as graph."""
 
-import osmnx as ox
 import logging
 from pathlib import Path
 from typing import Literal
+
+import osmnx as ox
 
 from graph_utils import save_graph
 
@@ -12,9 +13,9 @@ LOCATION: str = "New York City, USA"
 NETWORK_TYPE: Literal['drive', 'walk', 'bike', 'all'] = "drive"
 OUTPUT_FILE: Path = Path("data/raw/new_york_drive_network.graphml")
 
-def extract_road_network(location_name: str, 
-                         network_type: Literal['drive','walk','bike','all'], 
-                         output_file: Path) -> None: 
+def extract_road_network(location_name: str,
+                         network_type: Literal['drive','walk','bike','all'],
+                         output_file: Path) -> None:
     """
     Extract the road network for given location and save it as a GraphML file.
 
@@ -24,14 +25,14 @@ def extract_road_network(location_name: str,
         output_file (Path): Path to save the GraphML File
     """
     try:
-        logging.info(f"Extract {network_type} for location {location_name}")
+        logging.info("Extract %s for location %s", network_type, location_name)
 
         graph = ox.graph_from_place(location_name, network_type= network_type)
 
         save_graph(graph=graph, output_path=OUTPUT_FILE)
-        logging.info(f"Road network saved successfully to {output_file}")
+        logging.info("Road network saved successfully to %s", output_file)
     except Exception as err:
-        logging.error(f"Error occur while extracting road network: {err}", exc_info=True)
+        logging.error("Error occurred while extracting road network: %s", err, exc_info=True)
 
 if __name__ == "__main__":
     extract_road_network(LOCATION, NETWORK_TYPE, OUTPUT_FILE)
