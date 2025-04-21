@@ -31,8 +31,12 @@ def extract_road_network(location_name: str,
 
         save_graph(graph=graph, output_path=OUTPUT_FILE)
         logging.info("Road network saved successfully to %s", output_file)
-    except Exception as err:
-        logging.error("Error occurred while extracting road network: %s", err, exc_info=True)
+    except ValueError as err:  # For invalid location_name or network_type
+        logging.error("ValueError occurred: %s", err, exc_info=True)
+    except FileNotFoundError as err:  # If the OUTPUT_FILE path is invalid
+        logging.error("FileNotFoundError occurred: %s", err, exc_info=True)
+    except Exception as err:  # Catch any other unexpected exceptions
+        logging.error("Unexpected error occurred: %s", err, exc_info=True)
 
 if __name__ == "__main__":
     extract_road_network(LOCATION, NETWORK_TYPE, OUTPUT_FILE)

@@ -54,8 +54,16 @@ def visualize_interactive_graph(graph: nx.MultiDiGraph, output_file: Path) -> No
         output_file.parent.mkdir(parents=True, exist_ok=True)
         folium_map.save(str(output_file))
         logging.info("Interactive map saved to %s", output_file)
+    except KeyError as err:
+        logging.error("Missing key in data: %s", err, exc_info=True)
+    except AttributeError as err:
+        logging.error("Attribute error occurred: %s", err, exc_info=True)
+    except FileNotFoundError as err:
+        logging.error("File not found: %s", err, exc_info=True)
+    except PermissionError as err:
+        logging.error("Permission error: %s", err, exc_info=True)
     except Exception as err:
-        logging.error("An error occurred while creating the interactive map: %s",err, exc_info=True)
+        logging.error("An unexpected error occurred: %s", err, exc_info=True)
 
 if __name__ == "__main__":
     road_graph = load_graph_from_file(GRAPH_FILE)

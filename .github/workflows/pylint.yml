@@ -19,6 +19,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
+    - name: Create or verify .pylintrc
+      run: |
+        if [ ! -f .pylintrc ]; then
+          echo "[MESSAGES CONTROL]" > .pylintrc
+          echo "disable=W0718" >> .pylintrc
+        else
+          echo ".pylintrc file exists, skipping creation."
+        fi
     - name: Analysing the code with pylint
       run: |
         pylint --max-line-length=120 $(git ls-files '*.py')

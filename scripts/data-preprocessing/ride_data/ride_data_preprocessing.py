@@ -90,12 +90,12 @@ def map_zone_ids_to_coords(ride_data: pd.DataFrame, taxi_zones: gpd.GeoDataFrame
     taxi_zones_combined["pickup_lon"] = taxi_zones_combined.geometry.centroid.x
     taxi_zones_combined["dropoff_lat"] = taxi_zones_combined.geometry.centroid.y
     taxi_zones_combined["dropoff_lon"] = taxi_zones_combined.geometry.centroid.x
-    
+
     final_data: pd.DataFrame = ride_data.merge(
-        taxi_zones_combined[["LocationID", "pickup_lat", "pickup_lon"]], 
+        taxi_zones_combined[["LocationID", "pickup_lat", "pickup_lon"]],
         left_on="PULocationID", right_on="LocationID", how="left"
     ).merge(
-        taxi_zones_combined[["LocationID", "dropoff_lat", "dropoff_lon"]], 
+        taxi_zones_combined[["LocationID", "dropoff_lat", "dropoff_lon"]],
         left_on="DOLocationID", right_on="LocationID", how="left"
     )
 
@@ -155,36 +155,30 @@ def save_data(final_data: pd.DataFrame, output_csv: Path, output_parquet: Path) 
     logging.info("Parquet saved at %s", output_parquet)
 
 def main(parquet_file: Path, shapefile_path: Path, output_csv: Path, output_parquet: Path) -> None:
-    """
-    Main function to preprcoess ride data.
-
-    Args:
-        parquet_file (Path): Path to the Parquet file containing ride data.
-        shapefile_path (Path): Path to the Taxi Zone shapefile.
-        output_csv (Path): Path to save the preprocessed CSV file.
-        output_parquet (Path): Path to save the preprocessed Parquet file.
-    """
-    required_columns: list = ["PULocationID", "DOLocationID", "pickup_datetime", "dropoff_datetime", "trip_miles"]
-    # Phase 1: Load raw data and shapefile
-    raw_data: pd.DataFrame = load_parquet(parquet_file)
-    taxi_zones: gpd.GeoDataFrame = load_shapefile(shapefile_path)
-    validate_input_columns(ride_data=raw_data, required_columns=required_columns)
-
-    # Phase 2: Map Taxi Zone IDs to latitude and longitude
-    final_data: pd.DataFrame = map_zone_ids_to_coords(raw_data, taxi_zones)
-
-    # Phase 3: Validate for missing and invalid data
+    """Main pipeline for preprocessing ride data."""
+    required_columns = ["PULocationID", "DOLocationID", "pickup_datetime", "dropoff_datetime", "trip_miles"]
+    raw_data = load_parquet(parquet_file)
+    validate_input_columns(raw_data, required_columns)
+    taxi_zones = load_shapefile(shapefile_path)
+    final_data = map_zone_ids_to_coords(raw_data, taxi_zones)
     final_data = validate_data(final_data)
-
-    # Phase 4: Perform feature engineering
     final_data = feature_engineering(final_data)
-
-    # Phase 5: Stored processed data
     save_data(final_data, output_csv, output_parquet)
 
-if __name__=="__main__":
-    parquet_file: Path = Path("data/raw/nyc_tripdata_2024-01.parquet")
-    shapefile_path: Path = Path("data/raw/taxi_zones/taxi_zones.shp")
-    output_csv: Path = Path("data/output/preprocessed_ride_data.csv")
-    output_parquet: Path = Path("data/output/preprocessed_ride_data.parquet")
-    main(parquet_file, shapefile_path, output_csv, output_parquet)
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Preprocess ride-hailing data.")
+    parser.add_argument("--parquet", required=True, help="Path to the Parquet file.")
+    parser.add_argument("--shapefile", required=True, help="Path to the shapefile.")
+    parser.add_argument("--output_csv", required=True, help="Path for the output CSV file.")
+    parser.add_argument("--output_parquet", required=True, help="Path for the output Parquet file.")
+
+    args = parser.parse_args()
+
+    main(
+        parquet_file=Path(args.parquet),
+        shapefile_path=Path(args.shapefile),
+        output_csv=Path(args.output_csv),
+        output_parquet=Path(args.output_parquet)
+    )
