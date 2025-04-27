@@ -28,7 +28,7 @@ def load_parquet(parquet_file: Path) -> pd.DataFrame:
     except FileNotFoundError as exc:
         logging.error("File not found at %s.", parquet_file)
         raise FileNotFoundError(f"File not found: {parquet_file}") from exc
-    
+
 def load_shapefile(shape_file: Path) -> gpd.GeoDataFrame:
     """
     Loads Taxi Zone shapefile into a GeoDataFrame
@@ -59,7 +59,6 @@ def save_data(final_data: pd.DataFrame, output_csv: Path, output_parquet: Path) 
         output_parquet (Path): Path to save the Parquet file.
     """
     logging.info("Saving preprocessed data to CSV and Parquet...")
-    print(final_data.columns)
     final_data.to_csv(output_csv, index=False)
     logging.info("CSV saved at: %s", output_csv)
     final_data.to_parquet(output_parquet, index=False, compression="snappy")

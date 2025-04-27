@@ -110,11 +110,8 @@ def feature_engineering(final_data: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: Data with new and needed features.
     """
     logging.info("Adding new features for future analysis...")
-    final_data["trip_duration"] = (final_data["dropoff_datetime"] - final_data["pickup_datetime"]).dt.total_seconds()
     final_data["wait_time"] = (final_data["pickup_datetime"] - final_data["request_datetime"]).dt.total_seconds()
     final_data["avg_speed"] = final_data["trip_miles"] / (final_data["trip_duration"]/3600) #miles/hour
-    final_data['pickup_hour'] = final_data['pickup_datetime'].dt.hour
-    final_data['pickup_day_of_week'] = final_data['pickup_datetime'].dt.dayofweek  # 0 = Monday, 6 = Sunday
 
     logging.info("Removing redundant features...")
     columns_to_drop = [
@@ -139,7 +136,7 @@ def feature_engineering(final_data: pd.DataFrame) -> pd.DataFrame:
 def main():
     """Main pipeline for preprocessing ride data."""
     # Hardcode paths for input and output files
-    parquet_file = Path("data/raw/nyc_tripdata_2024-01.parquet")
+    parquet_file = Path("data/raw/ride_data_parquet/fhvhv_tripdata_2024-01.parquet")
     shapefile_path = Path("data/raw/taxi_zones/taxi_zones.shp")
     output_csv = Path("data/processed/preprocessed_ride_data.csv")
     output_parquet = Path("data/processed/preprocessed_ride_data.parquet")
